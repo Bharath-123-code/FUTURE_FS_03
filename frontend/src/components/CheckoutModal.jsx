@@ -63,16 +63,25 @@ const CheckoutModal = ({ setShowMenu }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate cart has items
+    if (!cartItems || cartItems.length === 0) {
+      setError('Your cart is empty. Please add items to your order.');
+      return;
+    }
+    
+    // Validate table number
     if (!tableNumber) {
       setError('Please select a table number');
       return;
     }
 
+    // Validate waiter selection
     if (!selectedWaiter && availableWaiters.length > 0) {
       setError('Please select a waiter');
       return;
     }
 
+    // Check if waiters are available
     if (availableWaiters.length === 0) {
       setError('All our staff are currently busy. Please wait a moment.');
       return;
@@ -456,7 +465,13 @@ const CheckoutModal = ({ setShowMenu }) => {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || availableWaiters.length === 0}
+                  disabled={
+                    loading || 
+                    availableWaiters.length === 0 || 
+                    !cartItems || cartItems.length === 0 ||
+                    !tableNumber ||
+                    (!selectedWaiter && availableWaiters.length > 0)
+                  }
                   className="flex-1 bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Placing Order...' : 'Place Order'}
