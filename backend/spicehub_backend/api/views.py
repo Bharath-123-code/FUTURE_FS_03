@@ -88,56 +88,78 @@ class OrderViewSet(viewsets.ModelViewSet):
             selected_waiter.save()
             order.save()
 
+            # Check if Twilio is properly configured before attempting to send notifications
             try:
                 from twilio.rest import Client
                 from twilio.twiml.voice_response import VoiceResponse
                 from django.conf import settings
 
-                print(f"Attempting to call waiter: {selected_waiter.name} at {selected_waiter.phone_number}")
-                print(f"From number: {settings.TWILIO_PHONE_NUMBER}")
+                # Check if Twilio credentials are properly set (not placeholder values)
+                if (settings.TWILIO_ACCOUNT_SID and 
+                    settings.TWILIO_AUTH_TOKEN and 
+                    settings.TWILIO_ACCOUNT_SID != 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' and
+                    settings.TWILIO_AUTH_TOKEN != 'your_auth_token'):
+                    
+                    print(f"Attempting to call waiter: {selected_waiter.name} at {selected_waiter.phone_number}")
+                    print(f"From number: {settings.TWILIO_PHONE_NUMBER}")
 
-                client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+                    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
-                items_list = "\n".join([
-                    f"{item.get('quantity', 1)}x {item.get('name', 'Unknown')} - ${item.get('price', 0):.2f}"
-                    for item in order.items
-                ])
+                    items_list = "\n".join([
+                        f"{item.get('quantity', 1)}x {item.get('name', 'Unknown')} - ${item.get('price', 0):.2f}"
+                        for item in order.items
+                    ])
 
-                call_message = (
-                    f"Hello {selected_waiter.name}. You have a new order from SpiceHub. "
-                    f"Table number {order.table_number}. "
-                    f"Order total is ${order.total_price:.2f}. "
-                    f"Items: {items_list}. "
-                    f"Please attend to this order immediately."
-                )
+                    call_message = (
+                        f"Hello {selected_waiter.name}. You have a new order from SpiceHub. "
+                        f"Table number {order.table_number}. "
+                        f"Order total is ${order.total_price:.2f}. "
+                        f"Items: {items_list}. "
+                        f"Please attend to this order immediately."
+                    )
 
-                print(f"Call message: {call_message}")
+                    print(f"Call message: {call_message}")
 
-                twiml_response = VoiceResponse()
-                twiml_response.say(call_message, voice='alice', language='en-US')
-                twiml_response.hangup()
+                    twiml_response = VoiceResponse()
+                    twiml_response.say(call_message, voice='alice', language='en-US')
+                    twiml_response.hangup()
 
-                voice_call = client.calls.create(
-                    twiml=str(twiml_response),
-                    from_=settings.TWILIO_PHONE_NUMBER,
-                    to=selected_waiter.phone_number,
-                    timeout=10
-                )
+                    voice_call = client.calls.create(
+                        twiml=str(twiml_response),
+                        from_=settings.TWILIO_PHONE_NUMBER,
+                        to=selected_waiter.phone_number,
+                        timeout=10
+                    )
 
-                print(f"Voice call initiated successfully: {voice_call.sid}")
+                    print(f"Voice call initiated successfully: {voice_call.sid}")
+                else:
+                    print("Twilio not properly configured - skipping notification")
+                    # Create a missed call record for configuration issue
+                    MissedCall.objects.create(
+                        waiter=selected_waiter,
+                        order=order,
+                        phone_number=selected_waiter.phone_number,
+                        call_status='failed',
+                        reason="Twilio not properly configured"
+                    )
+                    
             except Exception as e:
                 print(f"Twilio notification failed: {str(e)}")
                 import traceback
                 print(f"Full traceback: {traceback.format_exc()}")
                 
-                # Create a missed call record
-                MissedCall.objects.create(
-                    waiter=selected_waiter,
-                    order=order,
-                    phone_number=selected_waiter.phone_number,
-                    call_status='failed',
-                    reason=f"Twilio error: {str(e)}"
-                )
+                # Create a missed call record - don't let this break the order creation
+                try:
+                    MissedCall.objects.create(
+                        waiter=selected_waiter,
+                        order=order,
+                        phone_number=selected_waiter.phone_number,
+                        call_status='failed',
+                        reason=f"Twilio error: {str(e)}"
+                    )
+                except Exception as missed_call_error:
+                    print(f"Failed to create missed call record: {missed_call_error}")
+                    # Even this shouldn't break the order creation
 
         return order
     

@@ -39,24 +39,12 @@ const CheckoutModal = ({ setShowMenu }) => {
     try {
       setLoading(true);
       const waiters = await fetchAvailableWaiters();
-      const requiredMinWaiters = 5;
-      const mockWaiters = [
-        { id: 101, name: 'Alice Johnson', experience_years: 3, current_orders: 1, max_capacity: 5, phone_number: '+917780180901' },
-        { id: 102, name: 'Bob Smith', experience_years: 5, current_orders: 2, max_capacity: 6, phone_number: '+917780180902' },
-        { id: 103, name: 'Charlie Brown', experience_years: 2, current_orders: 0, max_capacity: 4, phone_number: '+917780180903' },
-        { id: 104, name: 'Diana Prince', experience_years: 4, current_orders: 1, max_capacity: 5, phone_number: '+917780180904' },
-        { id: 105, name: 'Edward Norton', experience_years: 6, current_orders: 3, max_capacity: 7, phone_number: '+917780180905' },
-        { id: 106, name: 'Mike Davis', experience_years: 3, current_orders: 1, max_capacity: 5, phone_number: '+916300803463' }
-      ];
-      const filledWaiters = [...waiters];
-      if (filledWaiters.length < requiredMinWaiters) {
-        const extraMock = mockWaiters.filter(mock => !filledWaiters.some(waiter => waiter.id === mock.id));
-        filledWaiters.push(...extraMock.slice(0, requiredMinWaiters - filledWaiters.length));
-      }
-      setAvailableWaiters(filledWaiters);
+      
+      // Use only real waiters from the API
+      setAvailableWaiters(waiters);
       
       // Calculate estimated wait time based on availability
-      if (filledWaiters.length === 0) {
+      if (waiters.length === 0) {
         // Estimate wait time (could be made more sophisticated)
         const estimatedMinutes = Math.max(10, Math.floor(Math.random() * 20) + 10);
         setEstimatedWaitMinutes(estimatedMinutes);
@@ -65,17 +53,8 @@ const CheckoutModal = ({ setShowMenu }) => {
       setError('');
     } catch (err) {
       console.error('Error fetching waiters:', err);
-      // Fallback to mock waiters
-      const mockWaiters = [
-        { id: 101, name: 'Alice Johnson', experience_years: 3, current_orders: 1, max_capacity: 5, phone_number: '+917780180901' },
-        { id: 102, name: 'Bob Smith', experience_years: 5, current_orders: 2, max_capacity: 6, phone_number: '+917780180902' },
-        { id: 103, name: 'Charlie Brown', experience_years: 2, current_orders: 0, max_capacity: 4, phone_number: '+917780180903' },
-        { id: 104, name: 'Diana Prince', experience_years: 4, current_orders: 1, max_capacity: 5, phone_number: '+917780180904' },
-        { id: 105, name: 'Edward Norton', experience_years: 6, current_orders: 3, max_capacity: 7, phone_number: '+917780180905' },
-        { id: 106, name: 'Mike Davis', experience_years: 3, current_orders: 1, max_capacity: 5, phone_number: '+916300803463' }
-      ];
-      setAvailableWaiters(mockWaiters);
-      setError('');
+      setAvailableWaiters([]);
+      setError('Failed to load available waiters. Please refresh the page.');
     } finally {
       setLoading(false);
     }
@@ -102,6 +81,12 @@ const CheckoutModal = ({ setShowMenu }) => {
     try {
       setLoading(true);
       
+      // Debug: Log current state
+      console.log('Checkout Debug - Cart Items:', cartItems);
+      console.log('Checkout Debug - Table Number:', tableNumber);
+      console.log('Checkout Debug - Selected Waiter:', selectedWaiter);
+      console.log('Checkout Debug - Available Waiters:', availableWaiters);
+      
       // Prepare order data
       const orderData = {
         table_number: parseInt(tableNumber),
@@ -112,12 +97,15 @@ const CheckoutModal = ({ setShowMenu }) => {
           quantity: item.quantity
         })),
         total_price: getTotalPrice(),
-        assigned_waiter: selectedWaiter,
+        assigned_waiter: selectedWaiter || null,
         status: 'Pending'
       };
 
+      console.log('Checkout Debug - Order Data:', orderData);
+
       // Create order
       const createdOrder = await createOrder(orderData);
+      console.log('Checkout Debug - Created Order:', createdOrder);
       
       // Success
       setOrderPlaced(true);
@@ -132,8 +120,50 @@ const CheckoutModal = ({ setShowMenu }) => {
       }, 2000);
 
     } catch (err) {
-      setError('Failed to place order. Please try again.');
-      console.error(err);
+      console.error('Checkout Error - Full Error:', err);
+      console.error('Checkout Error - Error Response:', err.response);
+      console.error('Checkout Error - Error Data:', err.response?.data);
+      console.error('Checkout Error - Error Status:', err.response?.status);
+      console.error('Checkout Error - Response Text:', err.response?.data?.toString());
+      
+      // Try to extract specific validation errors
+      let errorMessage = 'Failed to place order. Please try again.';
+      
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        
+        // Handle Django REST Framework validation errors
+        if (typeof errorData === 'object') {
+          const errorMessages = [];
+          
+          // Check for field-specific errors
+          Object.keys(errorData).forEach(field => {
+            if (Array.isArray(errorData[field])) {
+              errorMessages.push(`${field}: ${errorData[field].join(', ')}`);
+            } else if (typeof errorData[field] === 'string') {
+              errorMessages.push(`${field}: ${errorData[field]}`);
+            }
+          });
+          
+          // Check for non-field errors
+          if (errorData.non_field_errors) {
+            errorMessages.push(errorData.non_field_errors.join(', '));
+          }
+          
+          // Check for detail message
+          if (errorData.detail) {
+            errorMessages.push(errorData.detail);
+          }
+          
+          if (errorMessages.length > 0) {
+            errorMessage = errorMessages.join('; ');
+          }
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
