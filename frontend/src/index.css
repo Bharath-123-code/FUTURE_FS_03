@@ -1,0 +1,432 @@
+@import 'tailwindcss';
+
+/* Animated Mesh Gradient Background */
+@keyframes mesh-gradient-1 {
+  0%, 100% {
+    top: -50%;
+    left: -50%;
+  }
+  50% {
+    top: -20%;
+    left: 20%;
+  }
+}
+
+@keyframes mesh-gradient-2 {
+  0%, 100% {
+    top: 50%;
+    right: -50%;
+  }
+  50% {
+    top: 20%;
+    right: 10%;
+  }
+}
+
+@keyframes mesh-gradient-3 {
+  0%, 100% {
+    bottom: -50%;
+    left: 20%;
+  }
+  50% {
+    bottom: 0%;
+    left: 0%;
+  }
+}
+
+/* Mesh Gradient Container */
+.mesh-gradient-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #F9F7F2 0%, #F5F3ED 100%);
+  overflow: hidden;
+  z-index: 0;
+}
+
+.mesh-gradient-bg::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(138, 154, 91, 0.4) 0%, rgba(138, 154, 91, 0) 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: mesh-gradient-1 25s ease-in-out infinite;
+  top: -50%;
+  left: -50%;
+}
+
+.mesh-gradient-bg::after {
+  content: '';
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(226, 114, 91, 0.35) 0%, rgba(226, 114, 91, 0) 70%);
+  border-radius: 50%;
+  filter: blur(100px);
+  animation: mesh-gradient-2 30s ease-in-out infinite;
+  top: 50%;
+  right: -50%;
+}
+
+.mesh-gradient-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure proper layering for sections */
+.mesh-gradient-container > div,
+.mesh-gradient-container section {
+  position: relative;
+  z-index: 10;
+}
+
+/* Improve text readability over mesh gradient */
+.mesh-gradient-container h1,
+.mesh-gradient-container h2,
+.mesh-gradient-container h3 {
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+/* Smooth transitions for better premium feel */
+.mesh-gradient-container {
+  transition: background-color 0.3s ease;
+}
+
+/* Additional mesh gradient circle using pseudo-element approach */
+.mesh-gradient-bg {
+  --color-cream: #F9F7F2;
+  --color-sage: #8A9A5B;
+  --color-terra: #E2725B;
+}
+
+/* Extra layer for third gradient circle */
+.mesh-gradient-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mesh-circle-3 {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(249, 247, 242, 0.5) 0%, rgba(249, 247, 242, 0) 70%);
+  border-radius: 50%;
+  filter: blur(90px);
+  animation: mesh-gradient-3 28s ease-in-out infinite;
+  bottom: -50%;
+  left: 20%;
+}
+
+/* Chalkboard Theme Styles */
+.chalkboard-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Chalk dust texture overlay */
+.chalkboard-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.02) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.01) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating ingredient elements */
+.floating-chili {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  z-index: 1;
+  opacity: 0.6;
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-tomato {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  z-index: 1;
+  opacity: 0.5;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+.floating-herbs {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 55px;
+  height: 55px;
+  z-index: 1;
+  opacity: 0.7;
+  animation: float 7s ease-in-out infinite 2s;
+}
+
+.floating-pepper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  z-index: 1;
+  opacity: 0.6;
+  animation: float 9s ease-in-out infinite 1s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+/* Chalkboard card styling */
+.chalkboard-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+}
+
+/* Custom styles for high-end editorial look */
+.bg-cream {
+  background-color: #FDFBF7;
+}
+
+.dark .bg-cream {
+  background-color: #1a1a1a;
+}
+
+/* Custom typography classes */
+.font-serif-bold {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 700;
+}
+
+.font-sans-bold {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+}
+
+.text-deep-charcoal {
+  color: #2C2C2C;
+}
+
+.dark .text-deep-charcoal {
+  color: #f3f4f6;
+}
+
+/* Dark mode for cards and backgrounds */
+.dark .bg-white {
+  background-color: #2d3748;
+}
+
+.dark .text-gray-600 {
+  color: #a0aec0;
+}
+
+.dark .text-gray-500 {
+  color: #718096;
+}
+
+.dark .text-red-600 {
+  color: #fc8181;
+}
+
+.dark .border-gray-200 {
+  border-color: #4a5568;
+}
+
+.dark .bg-gradient-to-r.from-white {
+  background: linear-gradient(to right, #2d3748, transparent);
+}
+
+.dark .bg-gradient-to-l.from-white {
+  background: linear-gradient(to left, #2d3748, transparent);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid #FF8C00;
+  outline-offset: 2px;
+}
+
+/* Loading animation improvements */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+}
+
+.dark .animate-shimmer {
+  background: linear-gradient(90deg, #4a5568 25%, #2d3748 50%, #4a5568 75%);
+  background-size: 200px 100%;
+}
+
+/* Decorative underline for headings */
+.decorative-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.decorative-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #FF8C00, #FF6B35);
+  border-radius: 2px;
+}
+
+/* Pulse animation for WhatsApp button */
+@keyframes pulse-subtle {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+}
+
+.pulse-subtle {
+  animation: pulse-subtle 2s infinite;
+}
+
+/* Advanced animations and effects */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Advanced card hover effects */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.card-3d:hover {
+  transform: rotateY(5deg) rotateX(-5deg);
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #FF8C00;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #FF6B35;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Premium badge effects */
+.premium-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}

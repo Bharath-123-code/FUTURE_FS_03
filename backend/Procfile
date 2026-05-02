@@ -1,0 +1,1 @@
+web: gunicorn spicehub_backend.wsgi --log-file -
